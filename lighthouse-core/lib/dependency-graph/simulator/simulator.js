@@ -52,6 +52,7 @@ class Simulator {
     this._layoutTaskMultiplier = this._cpuSlowdownMultiplier * this._options.layoutTaskMultiplier;
 
     // Properties reset on every `.simulate` call but duplicated here for type checking
+    this._ignoreObserved = false;
     this._nodeTimings = new Map();
     this._numberInProgressByType = new Map();
     this._nodes = {};
@@ -148,6 +149,16 @@ class Simulator {
   }
 
   /**
+   * @param {LH.WebInspector.NetworkRequest} record
+   * @return {?TcpConnection}
+   */
+  _acquireConnection(record) {
+    return this._connectionPool.acquire(record, {
+      ignoreObserved: this._ignoreObserved,
+    });
+  }
+
+  /**
    * @param {Node} node
    * @param {number} totalElapsedTime
    */
@@ -167,7 +178,7 @@ class Simulator {
     // Start a network request if we're not at max requests and a connection is available
     const numberOfActiveRequests = this._numberInProgress(node.type);
     if (numberOfActiveRequests >= this._maximumConcurrentRequests) return;
-    const connection = this._connectionPool.acquire(/** @type {NetworkNode} */ (node).record);
+    const connection = this._acquireConnection(/** @type {NetworkNode} */ (node).record);
     if (!connection) return;
 
     this._markNodeAsInProgress(node, totalElapsedTime);
@@ -212,7 +223,7 @@ class Simulator {
 
     const record = /** @type {NetworkNode} */ (node).record;
     const timingData = this._nodeTimings.get(node);
-    const connection = /** @type {TcpConnection} */ (this._connectionPool.acquire(record));
+    const connection = /** @type {TcpConnection} */ (this._acquireConnection(record));
     const calculation = connection.simulateDownloadUntil(
       record.transferSize - timingData.bytesDownloaded,
       {timeAlreadyElapsed: timingData.timeElapsed, maximumTimeToElapse: Infinity}
@@ -255,7 +266,7 @@ class Simulator {
     if (node.type !== Node.TYPES.NETWORK) throw new Error('Unsupported');
 
     const record = /** @type {NetworkNode} */ (node).record;
-    const connection = /** @type {TcpConnection} */ (this._connectionPool.acquire(record));
+    const connection = /** @type {TcpConnection} */ (this._acquireConnection(record));
     const calculation = connection.simulateDownloadUntil(
       record.transferSize - timingData.bytesDownloaded,
       {
@@ -281,10 +292,13 @@ class Simulator {
   /**
    * Estimates the time taken to process all of the graph's nodes.
    * @param {Node} graph
+   * @param {{ignoreObserved?: boolean}=} options
    * @return {LH.Gatherer.Simulation.Result}
    */
-  simulate(graph) {
+  simulate(graph, options) {
+    options = Object.assign({ignoreObserved: false}, options);
     // initialize the necessary data containers
+    this._ignoreObserved = options.ignoreObserved;
     this._initializeConnectionPool(graph);
     this._initializeAuxiliaryData();
 

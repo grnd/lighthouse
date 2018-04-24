@@ -51,54 +51,117 @@ class UsesRelPreloadAudit extends Audit {
   }
 
   /**
+   * Computes the estimated effect of preloading all the resources.
+   * @param {Set<string>} urls The array of byte savings results per resource
+   * @param {Node} graph
+   * @param {Simulator} simulator
+   * @param {LH.WebInspector.NetworkRequest} mainResource
+   * @return {{wastedMs: number, results: Array<{url: string, wastedMs: number}>}}
+   */
+  static computeWasteWithGraph(urls, graph, simulator, mainResource) {
+    if (!urls.size) {
+      return {wastedMs: 0, results: []};
+    }
+
+    const simulationBeforeChanges = simulator.simulate(graph, {ignoreObserved: true});
+
+    const modifiedGraph = graph.cloneWithRelationships();
+
+    const nodesToPreload = [];
+    /** @type {Node|null} */
+    let mainDocumentNode = null;
+    modifiedGraph.traverse(node => {
+      if (node.record && urls.has(node.record.url)) {
+        nodesToPreload.push(node);
+      }
+
+      if (node.record && node.record.url === mainResource.url) {
+        mainDocumentNode = node;
+      }
+    });
+
+    if (!mainDocumentNode) {
+      // Should always find the main document node
+      throw new Error('Could not find main document node');
+    }
+
+    // Preload has the effect of moving the resource's only dependency to the main HTML document
+    // Remove all dependencies of the nodes
+    for (const node of nodesToPreload) {
+      node.removeAllDependencies();
+      node.addDependency(mainDocumentNode);
+    }
+
+    const simulationAfterChanges = simulator.simulate(modifiedGraph, {ignoreObserved: true});
+    const originalNodesByRecord = Array.from(simulationBeforeChanges.nodeTimings.keys())
+        .reduce((map, node) => map.set(node.record, node), new Map());
+
+    const results = [];
+    for (const node of nodesToPreload) {
+      const originalNode = originalNodesByRecord.get(node.record);
+      const timingAfter = simulationAfterChanges.nodeTimings.get(node);
+      const timingBefore = simulationBeforeChanges.nodeTimings.get(originalNode);
+      const wastedMs = Math.round(timingBefore.endTime - timingAfter.endTime);
+      if (wastedMs < THRESHOLD_IN_MS) continue;
+      results.push({url: node.record.url, wastedMs});
+    }
+
+    if (!results.length) {
+      return {wastedMs: 0, results};
+    }
+
+    return {
+      // Preload won't necessarily impact the deepest chain/overall time
+      // We'll use the maximum endTime improvement for now
+      wastedMs: Math.max(...results.map(item => item.wastedMs)),
+      results,
+    };
+  }
+
+  /**
    * @param {!Artifacts} artifacts
    * @return {!AuditResult}
    */
-  static audit(artifacts) {
-    const devtoolsLogs = artifacts.devtoolsLogs[UsesRelPreloadAudit.DEFAULT_PASS];
+  static audit(artifacts, context) {
+    const trace = artifacts.traces[UsesRelPreloadAudit.DEFAULT_PASS];
+    const devtoolsLog = artifacts.devtoolsLogs[UsesRelPreloadAudit.DEFAULT_PASS];
+    const simulatorOptions = {trace, devtoolsLog, settings: context.settings};
 
     return Promise.all([
-      artifacts.requestCriticalRequestChains(devtoolsLogs),
-      artifacts.requestMainResource(devtoolsLogs),
-    ]).then(([critChains, mainResource]) => {
-      const results = [];
-      let maxWasted = 0;
+      // TODO(phulce): eliminate dependency on CRC
+      artifacts.requestCriticalRequestChains(devtoolsLog),
+      artifacts.requestMainResource(devtoolsLog),
+      artifacts.requestPageDependencyGraph({trace, devtoolsLog}),
+      artifacts.requestLoadSimulator(simulatorOptions),
+    ]).then(([critChains, mainResource, graph, simulator]) => {
       // get all critical requests 2 + mainResourceIndex levels deep
       const mainResourceIndex = mainResource.redirects ? mainResource.redirects.length : 0;
 
       const criticalRequests = UsesRelPreloadAudit._flattenRequests(critChains,
         3 + mainResourceIndex, 2 + mainResourceIndex);
-      criticalRequests.forEach(request => {
-        const networkRecord = request;
+      const urls = new Set();
+      for (const networkRecord of criticalRequests) {
         if (!networkRecord._isLinkPreload && networkRecord.protocol !== 'data') {
-          // calculate time between mainresource.endTime and resource start time
-          const wastedMs = Math.min(request._startTime - mainResource._endTime,
-            request._endTime - request._startTime) * 1000;
-
-          if (wastedMs >= THRESHOLD_IN_MS) {
-            maxWasted = Math.max(wastedMs, maxWasted);
-            results.push({
-              url: request.url,
-              wastedMs: Util.formatMilliseconds(wastedMs),
-            });
-          }
+          urls.add(networkRecord._url);
         }
-      });
+      }
 
+      const {results, wastedMs} = UsesRelPreloadAudit.computeWasteWithGraph(urls, graph, simulator,
+          mainResource);
       // sort results by wastedTime DESC
       results.sort((a, b) => b.wastedMs - a.wastedMs);
 
       const headings = [
         {key: 'url', itemType: 'url', text: 'URL'},
-        {key: 'wastedMs', itemType: 'text', text: 'Potential Savings'},
+        {key: 'wastedMs', itemType: 'ms', text: 'Potential Savings', granularity: 10},
       ];
-      const summary = {wastedMs: maxWasted};
+      const summary = {wastedMs};
       const details = Audit.makeTableDetails(headings, results, summary);
 
       return {
-        score: UnusedBytes.scoreForWastedMs(maxWasted),
-        rawValue: maxWasted,
-        displayValue: Util.formatMilliseconds(maxWasted),
+        score: UnusedBytes.scoreForWastedMs(wastedMs),
+        rawValue: wastedMs,
+        displayValue: Util.formatMilliseconds(wastedMs),
         extendedInfo: {
           value: results,
         },

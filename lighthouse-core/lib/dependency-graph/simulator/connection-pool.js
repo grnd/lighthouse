@@ -82,15 +82,21 @@ module.exports = class ConnectionPool {
         throw new Error(`Could not find a connection for origin: ${origin}`);
       }
 
+      // Make sure each origin has 6 connections available
+      // https://cs.chromium.org/chromium/src/net/socket/client_socket_pool_manager.cc?type=cs&q="int+g_max_sockets_per_group"
+      while (connections.length < 6) connections.push(connections[0].clone());
+      while (connections.length > 6) connections.pop();
+
       this._connectionsByOrigin.set(origin, connections);
     }
   }
 
   /**
    * @param {LH.WebInspector.NetworkRequest} record
+   * @param {{ignoreObserved?: boolean}} options
    * @return {?TcpConnection}
    */
-  acquire(record) {
+  acquire(record, options = {}) {
     if (this._connectionsByRecord.has(record)) {
       // @ts-ignore
       return this._connectionsByRecord.get(record);
@@ -99,16 +105,29 @@ module.exports = class ConnectionPool {
     const origin = String(record.origin);
     /** @type {TcpConnection[]} */
     const connections = this._connectionsByOrigin.get(origin) || [];
-    const wasConnectionWarm = !!this._connectionReusedByRequestId.get(record.requestId);
-    const connection = connections.find(connection => {
-      const meetsWarmRequirement = wasConnectionWarm === connection.isWarm();
-      return meetsWarmRequirement && !this._connectionsInUse.has(connection);
+    // Sort connections by decreasing congestion window, i.e. warmest to coldest
+    const sortedConnections = connections.sort((a, b) => b.congestionWindow - a.congestionWindow);
+
+    const availableWarmConnection = sortedConnections.find(connection => {
+      return connection.isWarm() && !this._connectionsInUse.has(connection);
+    });
+    const availableColdConnection = sortedConnections.find(connection => {
+      return !connection.isWarm() && !this._connectionsInUse.has(connection);
     });
 
-    if (!connection) return null;
-    this._connectionsInUse.add(connection);
-    this._connectionsByRecord.set(record, connection);
-    return connection;
+    const needsColdConnection = !options.ignoreObserved &&
+        !this._connectionReusedByRequestId.get(record.requestId);
+    const needsWarmConnection = !options.ignoreObserved &&
+        this._connectionReusedByRequestId.get(record.requestId);
+
+    let connectionToUse = availableWarmConnection || availableColdConnection;
+    if (needsColdConnection) connectionToUse = availableColdConnection;
+    if (needsWarmConnection) connectionToUse = availableWarmConnection;
+    if (!connectionToUse) return null;
+
+    this._connectionsInUse.add(connectionToUse);
+    this._connectionsByRecord.set(record, connectionToUse);
+    return connectionToUse;
   }
 
   /**
