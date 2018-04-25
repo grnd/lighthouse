@@ -454,6 +454,20 @@ describe('Config', () => {
     assert.ok(auditNames.has('first-meaningful-paint'), 'did not include default audits');
   });
 
+  it('extends the observed config', () => {
+    const config = new Config({
+      extends: 'lighthouse:observed',
+      settings: {
+        onlyCategories: ['performance'],
+      },
+    });
+
+    const auditNames = new Set(config.audits.map(audit => audit.implementation.meta.name));
+    assert.equal(config.settings.throttlingMethod, 'devtools');
+    assert.ok(config.passes[0].networkQuietThresholdMs >= 5000, 'did not inherit network quiet ms');
+    assert.ok(auditNames.has('first-contentful-paint'), 'did not include default audits');
+  });
+
   it('merges settings with correct priority', () => {
     const config = new Config(
       {

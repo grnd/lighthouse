@@ -6,7 +6,7 @@
 'use strict';
 
 /**
- * Config file for running PWA smokehouse audits.
+ * Config file for running byte efficiency smokehouse audits.
  */
 module.exports = {
   extends: 'lighthouse:full',
@@ -22,5 +22,17 @@ module.exports = {
       'unused-css-rules',
       'unused-javascript',
     ],
+
+    // TODO(phulce): re-write testers to work with faster lantern loading and remove all this
+    throttlingMethod: 'devtools',
   },
+  passes: [
+    {
+      passName: 'defaultPass',
+      useThrottling: true,
+      pauseAfterLoadMs: 5250,
+      networkQuietThresholdMs: 5250,
+      cpuQuietThresholdMs: 5250,
+    },
+  ],
 };

@@ -58,7 +58,6 @@ Configuration:
                                  CHROME_PATH: Explicit path of intended Chrome binary. If set must point to an executable of a build of
                                  Chromium version 54.0 or later. By default, any detected Chrome Canary or Chrome (stable) will be launched.
                                                                                                                                        [default: ""]
-  --perf                         Use a performance-test-only configuration                                                                 [boolean]
   --port                         The port to use for the debugging protocol. Use 0 for a random port                                    [default: 0]
   --hostname                     The hostname to use for the debugging protocol.                                              [default: "localhost"]
   --max-wait-for-load            The timeout (in milliseconds) to wait before the page is considered done loading and the run should continue.

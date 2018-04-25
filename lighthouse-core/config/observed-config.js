@@ -6,8 +6,17 @@
 'use strict';
 
 module.exports = {
-  extends: 'lighthouse:observed',
+  extends: 'lighthouse:default',
   settings: {
-    onlyCategories: ['performance'],
+    throttlingMethod: 'devtools',
   },
+  passes: [
+    {
+      passName: 'defaultPass',
+      useThrottling: true,
+      pauseAfterLoadMs: 5250,
+      networkQuietThresholdMs: 5250,
+      cpuQuietThresholdMs: 5250,
+    },
+  ],
 };

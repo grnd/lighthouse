@@ -6,7 +6,7 @@
 'use strict';
 
 /**
- * Expected Lighthouse audit values for --perf tests
+ * Expected Lighthouse audit values for --config-preset=perf tests
  */
 module.exports = [
   {

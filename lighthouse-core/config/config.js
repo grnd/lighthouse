@@ -9,6 +9,7 @@
 const defaultConfigPath = './default-config.js';
 const defaultConfig = require('./default-config.js');
 const fullConfig = require('./full-config.js');
+const observedConfig = require('./observed-config');
 const constants = require('./constants');
 
 const isDeepEqual = require('lodash.isequal');
@@ -187,7 +188,7 @@ function deepClone(json) {
   // injection of plugins.
   if (Array.isArray(json.passes)) {
     cloned.passes.forEach((pass, i) => {
-      pass.gatherers = cloneArrayWithPluginSafety(json.passes[i].gatherers);
+      pass.gatherers = cloneArrayWithPluginSafety(json.passes[i].gatherers || []);
     });
   }
 
@@ -224,6 +225,10 @@ class Config {
       const explodedFullConfig = Config.extendConfigJSON(deepClone(defaultConfig),
           deepClone(fullConfig));
       configJSON = Config.extendConfigJSON(explodedFullConfig, configJSON);
+    } else if (configJSON.extends === 'lighthouse:observed') {
+      const explodedObservedConfig = Config.extendConfigJSON(deepClone(defaultConfig),
+          deepClone(observedConfig));
+      configJSON = Config.extendConfigJSON(explodedObservedConfig, configJSON);
     } else if (configJSON.extends) {
       configJSON = Config.extendConfigJSON(deepClone(defaultConfig), configJSON);
     }
