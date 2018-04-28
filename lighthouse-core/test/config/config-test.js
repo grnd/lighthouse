@@ -463,7 +463,6 @@ describe('Config', () => {
       },
     });
 
-    const auditNames = new Set(config.audits.map(audit => audit.implementation.meta.name));
     assert.equal(config.settings.throttlingMethod, 'devtools');
     assert.ok(config.passes[0].pauseAfterLoadMs >= 5000, 'did not adjust load quiet ms');
     assert.ok(config.passes[0].cpuQuietThresholdMs >= 5000, 'did not adjust cpu quiet ms');
@@ -482,11 +481,10 @@ describe('Config', () => {
           pauseAfterLoadMs: 10001,
           cpuQuietThresholdMs: 10002,
           networkQuietThresholdMs: 10003,
-        }
+        },
       ],
     });
 
-    const auditNames = new Set(config.audits.map(audit => audit.implementation.meta.name));
     assert.equal(config.settings.throttlingMethod, 'devtools');
     assert.equal(config.passes[0].pauseAfterLoadMs, 10001);
     assert.equal(config.passes[0].cpuQuietThresholdMs, 10002);
