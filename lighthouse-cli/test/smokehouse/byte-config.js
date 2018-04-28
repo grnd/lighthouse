@@ -23,16 +23,7 @@ module.exports = {
       'unused-javascript',
     ],
 
-    // TODO(phulce): re-write testers to work with faster lantern loading and remove all this
+    // TODO(phulce): re-write testers to work with faster lantern loading
     throttlingMethod: 'devtools',
   },
-  passes: [
-    {
-      passName: 'defaultPass',
-      useThrottling: true,
-      pauseAfterLoadMs: 5250,
-      networkQuietThresholdMs: 5250,
-      cpuQuietThresholdMs: 5250,
-    },
-  ],
 };
