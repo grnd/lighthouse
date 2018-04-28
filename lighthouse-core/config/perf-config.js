@@ -6,8 +6,9 @@
 'use strict';
 
 module.exports = {
-  extends: 'lighthouse:observed',
+  extends: 'lighthouse:default',
   settings: {
+    throttlingMethod: 'devtools',
     onlyCategories: ['performance'],
   },
 };

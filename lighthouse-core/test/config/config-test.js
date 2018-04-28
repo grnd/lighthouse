@@ -454,18 +454,43 @@ describe('Config', () => {
     assert.ok(auditNames.has('first-meaningful-paint'), 'did not include default audits');
   });
 
-  it('extends the observed config', () => {
+  it('ensures quiet thresholds are sufficient when using devtools', () => {
     const config = new Config({
-      extends: 'lighthouse:observed',
+      extends: 'lighthouse:default',
       settings: {
+        throttlingMethod: 'devtools',
         onlyCategories: ['performance'],
       },
     });
 
     const auditNames = new Set(config.audits.map(audit => audit.implementation.meta.name));
     assert.equal(config.settings.throttlingMethod, 'devtools');
-    assert.ok(config.passes[0].networkQuietThresholdMs >= 5000, 'did not inherit network quiet ms');
-    assert.ok(auditNames.has('first-contentful-paint'), 'did not include default audits');
+    assert.ok(config.passes[0].pauseAfterLoadMs >= 5000, 'did not adjust load quiet ms');
+    assert.ok(config.passes[0].cpuQuietThresholdMs >= 5000, 'did not adjust cpu quiet ms');
+    assert.ok(config.passes[0].networkQuietThresholdMs >= 5000, 'did not adjust network quiet ms');
+  });
+
+  it('does nothing when thresholds for devtools are already sufficient', () => {
+    const config = new Config({
+      extends: 'lighthouse:default',
+      settings: {
+        throttlingMethod: 'devtools',
+        onlyCategories: ['performance'],
+      },
+      passes: [
+        {
+          pauseAfterLoadMs: 10001,
+          cpuQuietThresholdMs: 10002,
+          networkQuietThresholdMs: 10003,
+        }
+      ],
+    });
+
+    const auditNames = new Set(config.audits.map(audit => audit.implementation.meta.name));
+    assert.equal(config.settings.throttlingMethod, 'devtools');
+    assert.equal(config.passes[0].pauseAfterLoadMs, 10001);
+    assert.equal(config.passes[0].cpuQuietThresholdMs, 10002);
+    assert.equal(config.passes[0].networkQuietThresholdMs, 10003);
   });
 
   it('merges settings with correct priority', () => {

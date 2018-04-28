@@ -52,13 +52,13 @@ if (cliFlags.configPath) {
   // Resolve the config file path relative to where cli was called.
   cliFlags.configPath = path.resolve(process.cwd(), cliFlags.configPath);
   config = /** @type {LH.Config.Json} */ (require(cliFlags.configPath));
-} else if (cliFlags.configPreset) {
-  if (cliFlags.configPreset === 'mixed-content') {
+} else if (cliFlags.preset) {
+  if (cliFlags.preset === 'mixed-content') {
     // The mixed-content audits require headless Chrome (https://crbug.com/764505).
     cliFlags.chromeFlags = `${cliFlags.chromeFlags} --headless`;
   }
 
-  config = require(`../lighthouse-core/config/${cliFlags.configPreset}-config.js`);
+  config = require(`../lighthouse-core/config/${cliFlags.preset}-config.js`);
 }
 
 // set logging preferences

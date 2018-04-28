@@ -70,7 +70,7 @@ declare global {
       listAllAudits: boolean;
       listTraceCategories: boolean;
       configPath?: string;
-      configPreset?: 'observed'|'full'|'mixed-content'|'perf';
+      preset?: 'full'|'mixed-content'|'perf';
       perf: boolean;
       mixedContent: boolean;
       verbose: boolean;

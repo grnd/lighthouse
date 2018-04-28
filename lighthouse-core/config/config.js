@@ -9,7 +9,6 @@
 const defaultConfigPath = './default-config.js';
 const defaultConfig = require('./default-config.js');
 const fullConfig = require('./full-config.js');
-const observedConfig = require('./observed-config');
 const constants = require('./constants');
 
 const isDeepEqual = require('lodash.isequal');
@@ -225,10 +224,6 @@ class Config {
       const explodedFullConfig = Config.extendConfigJSON(deepClone(defaultConfig),
           deepClone(fullConfig));
       configJSON = Config.extendConfigJSON(explodedFullConfig, configJSON);
-    } else if (configJSON.extends === 'lighthouse:observed') {
-      const explodedObservedConfig = Config.extendConfigJSON(deepClone(defaultConfig),
-          deepClone(observedConfig));
-      configJSON = Config.extendConfigJSON(explodedObservedConfig, configJSON);
     } else if (configJSON.extends) {
       configJSON = Config.extendConfigJSON(deepClone(defaultConfig), configJSON);
     }
@@ -253,6 +248,8 @@ class Config {
       configJSON = Config.generateNewFilteredConfig(configJSON, categoryIds, auditIds,
           skipAuditIds);
     }
+
+    Config.adjustDefaultPassForThrottling(configJSON);
 
     // Store the directory of the config path, if one was provided.
     this._configDir = configPath ? path.dirname(configPath) : undefined;
@@ -384,6 +381,26 @@ class Config {
     }
 
     return mergedItems;
+  }
+
+  /**
+   * Observed throttling methods (devtools/provided) require at least 5s of quiet for the metrics to
+   * be computed. This method adjusts the quiet thresholds to the required minimums if necessary.
+   *
+   * @param {LH.Config.Json} config
+   */
+  static adjustDefaultPassForThrottling(config) {
+    if (config.settings.throttlingMethod !== 'devtools' &&
+        config.settings.throttlingMethod !== 'provided') {
+      return;
+    }
+
+    const defaultPass = config.passes.find(pass => pass.passName === 'defaultPass');
+    if (!defaultPass) return;
+
+    defaultPass.pauseAfterLoadMs = Math.max(5250, defaultPass.pauseAfterLoadMs);
+    defaultPass.cpuQuietThresholdMs = Math.max(5250, defaultPass.cpuQuietThresholdMs);
+    defaultPass.networkQuietThresholdMs = Math.max(5250, defaultPass.networkQuietThresholdMs);
   }
 
   /**

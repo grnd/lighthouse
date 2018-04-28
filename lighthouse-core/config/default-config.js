@@ -14,6 +14,7 @@ module.exports = {
   passes: [{
     passName: 'defaultPass',
     recordTrace: true,
+    useThrottling: true,
     pauseAfterLoadMs: 500,
     networkQuietThresholdMs: 500,
     cpuQuietThresholdMs: 500,

@@ -77,8 +77,7 @@ const SMOKETESTS = [{
 }, {
   id: 'ttci',
   expectations: 'tricky-ttci/expectations.js',
-  // Explicitly tests a tricky case when in observed mode, use observed config
-  config: 'lighthouse-core/config/observed-config.js',
+  config: 'lighthouse-core/config/perf-config.js',
   batch: 'parallel-second',
 }];
 
