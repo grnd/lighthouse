@@ -112,7 +112,7 @@
       "helpText": "A fast page load over a 3G network ensures a good mobile user experience. [Learn more](https://developers.google.com/web/tools/lighthouse/audits/fast-3g)."
     },
     "speed-index": {
-      "score": 0.62,
+      "score": 0.67,
       "displayValue": "4,420 ms",
       "rawValue": 4417,
       "scoreDisplayMode": "numeric",
@@ -267,7 +267,7 @@
       }
     },
     "first-cpu-idle": {
-      "score": 0.82,
+      "score": 0.65,
       "displayValue": "4,930 ms",
       "rawValue": 4927.278,
       "scoreDisplayMode": "numeric",
@@ -275,8 +275,8 @@
       "description": "First CPU Idle",
       "helpText": "First CPU Idle marks the first time at which the page's main thread is quiet enough to handle input. [Learn more](https://developers.google.com/web/tools/lighthouse/audits/first-interactive)."
     },
-    "consistently-interactive": {
-      "score": 0.82,
+    "interactive": {
+      "score": 0.69,
       "displayValue": "4,930 ms",
       "rawValue": 4927.278,
       "extendedInfo": {
@@ -286,9 +286,9 @@
         }
       },
       "scoreDisplayMode": "numeric",
-      "name": "consistently-interactive",
-      "description": "Consistently Interactive (beta)",
-      "helpText": "Consistently Interactive marks the time at which the page is fully interactive. [Learn more](https://developers.google.com/web/tools/lighthouse/audits/consistently-interactive)."
+      "name": "interactive",
+      "description": "Time to Interactive",
+      "helpText": "Interactive marks the time at which the page is fully interactive. [Learn more](https://developers.google.com/web/tools/lighthouse/audits/consistently-interactive)."
     },
     "user-timings": {
       "score": 1,
@@ -1066,6 +1066,27 @@
         }
       }
     },
+    "uses-rel-preconnect": {
+      "score": 1,
+      "displayValue": "0 ms",
+      "rawValue": 0,
+      "extendedInfo": {
+        "value": []
+      },
+      "scoreDisplayMode": "numeric",
+      "informative": true,
+      "name": "uses-rel-preconnect",
+      "description": "Avoid multiple, costly round trips to any origin",
+      "helpText": "Consider adding preconnect or dns-prefetch resource hints to establish early connections to important third-party origins. [Learn more](https://developers.google.com/web/fundamentals/performance/resource-prioritization#preconnect).",
+      "details": {
+        "type": "table",
+        "headings": [],
+        "items": [],
+        "summary": {
+          "wastedMs": 0
+        }
+      }
+    },
     "font-display": {
       "score": 1,
       "displayValue": "",
@@ -1505,7 +1526,7 @@
             "timestamp": 185608247190
           },
           {
-            "metricName": "timeToInteractive",
+            "metricName": "interactive",
             "timing": 4927,
             "timestamp": 185608247190
           },
@@ -1513,6 +1534,10 @@
             "metricName": "speedIndex",
             "timing": 4417,
             "timestamp": 185607736912
+          },
+          {
+            "metricName": "estimatedInputLatency",
+            "timing": 16
           },
           {
             "metricName": "observedNavigationStart",
@@ -2449,7 +2474,7 @@
       "helpText": "DOM order matches the visual order, improving navigation for assistive technology. [Learn more](https://developers.google.com/web/fundamentals/accessibility/how-to-review#try_it_with_a_screen_reader)."
     },
     "uses-long-cache-ttl": {
-      "score": 0.91,
+      "score": 0.58,
       "displayValue": "11 assets found",
       "rawValue": 103455,
       "extendedInfo": {
@@ -2549,7 +2574,7 @@
       },
       "scoreDisplayMode": "numeric",
       "name": "uses-long-cache-ttl",
-      "description": "Uses efficient cache policy on static assets",
+      "description": "Uses inefficient cache policy on static assets",
       "helpText": "A long cache lifetime can speed up repeat visits to your page. [Learn more](https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching#cache-control).",
       "details": {
         "type": "table",
@@ -3196,6 +3221,31 @@
         }
       }
     },
+    "efficient-animated-content": {
+      "score": 1,
+      "displayValue": "",
+      "rawValue": 0,
+      "extendedInfo": {
+        "value": {
+          "wastedMs": 0,
+          "wastedKb": 0,
+          "results": []
+        }
+      },
+      "scoreDisplayMode": "numeric",
+      "name": "efficient-animated-content",
+      "description": "Use video formats for animated content",
+      "helpText": "Large GIFs are inefficient for delivering animated content. Consider using MPEG4/WebM videos for animations and PNG/WebP for static images instead of GIF to save network bytes. [Learn more](https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/replace-animated-gifs-with-video/)",
+      "details": {
+        "type": "table",
+        "headings": [],
+        "items": [],
+        "summary": {
+          "wastedMs": 0,
+          "wastedBytes": 0
+        }
+      }
+    },
     "appcache-manifest": {
       "score": 0,
       "displayValue": "",
@@ -3671,48 +3721,42 @@
               "col": 50,
               "url": "http://localhost:10200/dobetterweb/dbw_tester.html",
               "type": "DOMNodeInserted",
-              "pre": "section#touchmove-section.addEventListener('DOMNodeInserted', function(e) {\n    console.log('DOMNodeInserted on element');\n  })\n\n",
-              "label": "line: 206, col: 50"
+              "pre": "section#touchmove-section.addEventListener('DOMNodeInserted', function(e) {\n    console.log('DOMNodeInserted on element');\n  })\n\n"
             },
             {
               "line": 200,
               "col": 61,
               "url": "http://localhost:10200/dobetterweb/dbw_tester.html",
               "type": "DOMNodeInserted",
-              "pre": "body.addEventListener('DOMNodeInserted', function(e) {\n    console.log('DOMNodeInserted');\n  })\n\n",
-              "label": "line: 200, col: 61"
+              "pre": "body.addEventListener('DOMNodeInserted', function(e) {\n    console.log('DOMNodeInserted');\n  })\n\n"
             },
             {
               "line": 20,
               "col": 56,
               "url": "http://localhost:10200/dobetterweb/dbw_tester.js",
               "type": "DOMNodeInserted",
-              "pre": "document.addEventListener('DOMNodeInserted', function(e) {\n    console.log('DOMNodeInserted');\n  })\n\n",
-              "label": "line: 20, col: 56"
+              "pre": "document.addEventListener('DOMNodeInserted', function(e) {\n    console.log('DOMNodeInserted');\n  })\n\n"
             },
             {
               "line": 190,
               "col": 56,
               "url": "http://localhost:10200/dobetterweb/dbw_tester.html",
               "type": "DOMNodeInserted",
-              "pre": "document.addEventListener('DOMNodeInserted', function(e) {\n    console.log('DOMNodeInserted');\n  })\n\n",
-              "label": "line: 190, col: 56"
+              "pre": "document.addEventListener('DOMNodeInserted', function(e) {\n    console.log('DOMNodeInserted');\n  })\n\n"
             },
             {
               "line": 195,
               "col": 55,
               "url": "http://localhost:10200/dobetterweb/dbw_tester.html",
               "type": "DOMNodeRemoved",
-              "pre": "document.addEventListener('DOMNodeRemoved', function(e) {\n    console.log('DOMNodeRemoved');\n  })\n\n",
-              "label": "line: 195, col: 55"
+              "pre": "document.addEventListener('DOMNodeRemoved', function(e) {\n    console.log('DOMNodeRemoved');\n  })\n\n"
             },
             {
               "line": 211,
               "col": 54,
               "url": "http://localhost:10200/dobetterweb/dbw_tester.html",
               "type": "DOMNodeInserted",
-              "pre": "window.addEventListener('DOMNodeInserted', function(e) {\n    console.log('DOMNodeInserted');\n  })\n\n",
-              "label": "line: 211, col: 54"
+              "pre": "window.addEventListener('DOMNodeInserted', function(e) {\n    console.log('DOMNodeInserted');\n  })\n\n"
             }
           ]
         }
@@ -3756,48 +3800,42 @@
             "col": 50,
             "url": "http://localhost:10200/dobetterweb/dbw_tester.html",
             "type": "DOMNodeInserted",
-            "pre": "section#touchmove-section.addEventListener('DOMNodeInserted', function(e) {\n    console.log('DOMNodeInserted on element');\n  })\n\n",
-            "label": "line: 206, col: 50"
+            "pre": "section#touchmove-section.addEventListener('DOMNodeInserted', function(e) {\n    console.log('DOMNodeInserted on element');\n  })\n\n"
           },
           {
             "line": 200,
             "col": 61,
             "url": "http://localhost:10200/dobetterweb/dbw_tester.html",
             "type": "DOMNodeInserted",
-            "pre": "body.addEventListener('DOMNodeInserted', function(e) {\n    console.log('DOMNodeInserted');\n  })\n\n",
-            "label": "line: 200, col: 61"
+            "pre": "body.addEventListener('DOMNodeInserted', function(e) {\n    console.log('DOMNodeInserted');\n  })\n\n"
           },
           {
             "line": 20,
             "col": 56,
             "url": "http://localhost:10200/dobetterweb/dbw_tester.js",
             "type": "DOMNodeInserted",
-            "pre": "document.addEventListener('DOMNodeInserted', function(e) {\n    console.log('DOMNodeInserted');\n  })\n\n",
-            "label": "line: 20, col: 56"
+            "pre": "document.addEventListener('DOMNodeInserted', function(e) {\n    console.log('DOMNodeInserted');\n  })\n\n"
           },
           {
             "line": 190,
             "col": 56,
             "url": "http://localhost:10200/dobetterweb/dbw_tester.html",
             "type": "DOMNodeInserted",
-            "pre": "document.addEventListener('DOMNodeInserted', function(e) {\n    console.log('DOMNodeInserted');\n  })\n\n",
-            "label": "line: 190, col: 56"
+            "pre": "document.addEventListener('DOMNodeInserted', function(e) {\n    console.log('DOMNodeInserted');\n  })\n\n"
           },
           {
             "line": 195,
             "col": 55,
             "url": "http://localhost:10200/dobetterweb/dbw_tester.html",
             "type": "DOMNodeRemoved",
-            "pre": "document.addEventListener('DOMNodeRemoved', function(e) {\n    console.log('DOMNodeRemoved');\n  })\n\n",
-            "label": "line: 195, col: 55"
+            "pre": "document.addEventListener('DOMNodeRemoved', function(e) {\n    console.log('DOMNodeRemoved');\n  })\n\n"
           },
           {
             "line": 211,
             "col": 54,
             "url": "http://localhost:10200/dobetterweb/dbw_tester.html",
             "type": "DOMNodeInserted",
-            "pre": "window.addEventListener('DOMNodeInserted', function(e) {\n    console.log('DOMNodeInserted');\n  })\n\n",
-            "label": "line: 211, col: 54"
+            "pre": "window.addEventListener('DOMNodeInserted', function(e) {\n    console.log('DOMNodeInserted');\n  })\n\n"
           }
         ]
       }
@@ -3810,9 +3848,8 @@
         "jsLibs": [
           {
             "name": "jQuery",
-            "version": "2.1.1",
             "npmPkgName": "jquery",
-            "pkgLink": "https://snyk.io/vuln/npm:jquery?lh@2.1.1",
+            "version": "2.1.1",
             "vulns": [
               {
                 "severity": "medium",
@@ -3827,37 +3864,13 @@
                 "url": "https://snyk.io/vuln/npm:jquery:20160529"
               }
             ],
-            "vulnCount": 2,
-            "highestSeverity": "Medium",
-            "detectedLib": {
-              "text": "jQuery@2.1.1",
-              "url": "https://snyk.io/vuln/npm:jquery?lh@2.1.1",
-              "type": "link"
-            }
+            "highestSeverity": "Medium"
           }
         ],
         "vulnerabilities": [
           {
-            "name": "jQuery",
-            "version": "2.1.1",
-            "npmPkgName": "jquery",
-            "pkgLink": "https://snyk.io/vuln/npm:jquery?lh@2.1.1",
-            "vulns": [
-              {
-                "severity": "medium",
-                "numericSeverity": 2,
-                "library": "jQuery@2.1.1",
-                "url": "https://snyk.io/vuln/npm:jquery:20150627"
-              },
-              {
-                "severity": "low",
-                "numericSeverity": 1,
-                "library": "jQuery@2.1.1",
-                "url": "https://snyk.io/vuln/npm:jquery:20160529"
-              }
-            ],
-            "vulnCount": 2,
             "highestSeverity": "Medium",
+            "vulnCount": 2,
             "detectedLib": {
               "text": "jQuery@2.1.1",
               "url": "https://snyk.io/vuln/npm:jquery?lh@2.1.1",
@@ -3891,26 +3904,8 @@
         ],
         "items": [
           {
-            "name": "jQuery",
-            "version": "2.1.1",
-            "npmPkgName": "jquery",
-            "pkgLink": "https://snyk.io/vuln/npm:jquery?lh@2.1.1",
-            "vulns": [
-              {
-                "severity": "medium",
-                "numericSeverity": 2,
-                "library": "jQuery@2.1.1",
-                "url": "https://snyk.io/vuln/npm:jquery:20150627"
-              },
-              {
-                "severity": "low",
-                "numericSeverity": 1,
-                "library": "jQuery@2.1.1",
-                "url": "https://snyk.io/vuln/npm:jquery:20160529"
-              }
-            ],
-            "vulnCount": 2,
             "highestSeverity": "Medium",
+            "vulnCount": 2,
             "detectedLib": {
               "text": "jQuery@2.1.1",
               "url": "https://snyk.io/vuln/npm:jquery?lh@2.1.1",
@@ -4600,7 +4595,7 @@
           "group": "perf-metric"
         },
         {
-          "id": "consistently-interactive",
+          "id": "interactive",
           "weight": 5,
           "group": "perf-metric"
         },
@@ -4660,6 +4655,11 @@
           "group": "perf-hint"
         },
         {
+          "id": "uses-rel-preconnect",
+          "weight": 0,
+          "group": "perf-hint"
+        },
+        {
           "id": "time-to-first-byte",
           "weight": 0,
           "group": "perf-hint"
@@ -4671,6 +4671,11 @@
         },
         {
           "id": "uses-rel-preload",
+          "weight": 0,
+          "group": "perf-hint"
+        },
+        {
+          "id": "efficient-animated-content",
           "weight": 0,
           "group": "perf-hint"
         },
@@ -4728,7 +4733,7 @@
         }
       ],
       "id": "performance",
-      "score": 0.7
+      "score": 0.62
     },
     {
       "name": "Progressive Web App",

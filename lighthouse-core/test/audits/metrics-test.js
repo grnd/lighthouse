@@ -41,8 +41,9 @@ describe('Performance: metrics', () => {
       firstContentfulPaint: 2038,
       firstMeaningfulPaint: 2851,
       firstCPUIdle: 5308,
-      timeToInteractive: 5308,
+      interactive: 5308,
       speedIndex: 2063,
+      estimatedInputLatency: 104,
 
       observedNavigationStart: 0,
       observedFirstPaint: 499,

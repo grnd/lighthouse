@@ -20,9 +20,8 @@ function request(opts) {
   return Object.assign({
     requestId: opts.requestId || nextRequestId++,
     url,
-    origin: url,
     transferSize: opts.transferSize || 1000,
-    parsedURL: {scheme},
+    parsedURL: {scheme, securityOrigin: () => url},
     _timing: opts.timing,
   }, opts);
 }
@@ -40,7 +39,7 @@ describe('DependencyGraph/Simulator', () => {
     const serverResponseTimeByOrigin = new Map([['http://example.com', 500]]);
 
     function assertNodeTiming(result, node, assertions) {
-      const timing = result.nodeTiming.get(node);
+      const timing = result.nodeTimings.get(node);
       assert.ok(timing, 'missing node timing information');
       Object.keys(assertions).forEach(key => {
         assert.equal(timing[key], assertions[key]);

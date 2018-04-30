@@ -10,9 +10,9 @@ const CPUNode = require('../../../lib/dependency-graph/cpu-node'); // eslint-dis
 const NetworkNode = require('../../../lib/dependency-graph/network-node'); // eslint-disable-line no-unused-vars
 
 const FirstCPUIdle = require('./first-cpu-idle');
-const LanternConsistentlyInteractive = require('./lantern-consistently-interactive');
+const LanternInteractive = require('./lantern-interactive');
 
-class LanternFirstCPUIdle extends LanternConsistentlyInteractive {
+class LanternFirstCPUIdle extends LanternInteractive {
   get name() {
     return 'LanternFirstCPUIdle';
   }
@@ -28,20 +28,20 @@ class LanternFirstCPUIdle extends LanternConsistentlyInteractive {
       : extras.fmpResult.pessimisticEstimate.timeInMs;
 
     return {
-      timeInMs: LanternFirstCPUIdle.getFirstCPUIdleWindowStart(simulation.nodeTiming, fmpTimeInMs),
-      nodeTiming: simulation.nodeTiming,
+      timeInMs: LanternFirstCPUIdle.getFirstCPUIdleWindowStart(simulation.nodeTimings, fmpTimeInMs),
+      nodeTimings: simulation.nodeTimings,
     };
   }
 
   /**
    *
-   * @param {Map<Node, LH.Gatherer.Simulation.NodeTiming>} nodeTiming
+   * @param {LH.Gatherer.Simulation.Result['nodeTimings']} nodeTimings
    * @param {number} fmpTimeInMs
    */
-  static getFirstCPUIdleWindowStart(nodeTiming, fmpTimeInMs, longTaskLength = 50) {
+  static getFirstCPUIdleWindowStart(nodeTimings, fmpTimeInMs, longTaskLength = 50) {
     /** @type {Array<{start: number, end: number}>} */
     const longTasks = [];
-    for (const [node, timing] of nodeTiming.entries()) {
+    for (const [node, timing] of nodeTimings.entries()) {
       if (node.type !== Node.TYPES.CPU) continue;
       if (!timing.endTime || !timing.startTime) continue;
       if (timing.endTime - timing.startTime < longTaskLength) continue;

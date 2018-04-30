@@ -35,8 +35,9 @@ class Metrics extends Audit {
     const firstContentfulPaint = await artifacts.requestFirstContentfulPaint(metricComputationData);
     const firstMeaningfulPaint = await artifacts.requestFirstMeaningfulPaint(metricComputationData);
     const firstCPUIdle = await artifacts.requestFirstCPUIdle(metricComputationData);
-    const timeToInteractive = await artifacts.requestConsistentlyInteractive(metricComputationData);
+    const interactive = await artifacts.requestInteractive(metricComputationData);
     const speedIndex = await artifacts.requestSpeedIndex(metricComputationData);
+    const estimatedInputLatency = await artifacts.requestEstimatedInputLatency(metricComputationData); // eslint-disable-line max-len
     const metrics = [];
 
     // Include the simulated/observed performance metrics
@@ -44,8 +45,9 @@ class Metrics extends Audit {
       firstContentfulPaint,
       firstMeaningfulPaint,
       firstCPUIdle,
-      timeToInteractive,
+      interactive,
       speedIndex,
+      estimatedInputLatency,
     };
 
     for (const [metricName, values] of Object.entries(metricsMap)) {
@@ -90,7 +92,7 @@ class Metrics extends Audit {
 
     return {
       score: 1,
-      rawValue: timeToInteractive.timing,
+      rawValue: interactive.timing,
       details: tableDetails,
     };
   }

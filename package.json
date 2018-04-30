@@ -30,6 +30,7 @@
     "start": "node ./lighthouse-cli/index.js",
     "test": "yarn lint --quiet && yarn unit && yarn type-check && yarn closure && yarn diff:sample-json",
     "test-extension": "cd lighthouse-extension && yarn test",
+    "test-viewer": "cd lighthouse-viewer && yarn pptr-test",
 
     "unit-core": "mocha --reporter dot \"lighthouse-core/test/**/*-test.js\"",
     "unit-cli": "mocha --reporter dot \"lighthouse-cli/test/**/*-test.js\"",
@@ -67,11 +68,12 @@
   "devDependencies": {
     "@types/chrome": "^0.0.60",
     "@types/configstore": "^2.1.1",
-    "@types/css-font-loading-module": "^0.0.1",
+    "@types/css-font-loading-module": "^0.0.2",
     "@types/inquirer": "^0.0.35",
     "@types/lodash.isequal": "^4.5.2",
     "@types/node": "*",
     "@types/opn": "^3.0.28",
+    "@types/semver": "^5.5.0",
     "@types/update-notifier": "^1.0.2",
     "@types/ws": "^4.0.1",
     "@types/yargs": "^8.0.2",
@@ -144,7 +146,7 @@
   "bundlesize": [
     {
       "path": "./lighthouse-extension/dist/scripts/lighthouse-background.js",
-      "threshold": "400 Kb"
+      "threshold": "426 Kb"
     },
     {
       "path": "./lighthouse-viewer/dist/src/viewer.js",

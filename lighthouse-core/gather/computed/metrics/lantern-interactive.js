@@ -14,9 +14,9 @@ const WebInspector = require('../../../lib/web-inspector');
 // Any CPU task of 20 ms or more will end up being a critical long task on mobile
 const CRITICAL_LONG_TASK_THRESHOLD = 20;
 
-class ConsistentlyInteractive extends MetricArtifact {
+class Interactive extends MetricArtifact {
   get name() {
-    return 'LanternConsistentlyInteractive';
+    return 'LanternInteractive';
   }
 
   /**
@@ -71,35 +71,35 @@ class ConsistentlyInteractive extends MetricArtifact {
    * @return {LH.Gatherer.Simulation.Result}
    */
   getEstimateFromSimulation(simulationResult, extras) {
-    const lastTaskAt = ConsistentlyInteractive.getLastLongTaskEndTime(simulationResult.nodeTiming);
+    const lastTaskAt = Interactive.getLastLongTaskEndTime(simulationResult.nodeTimings);
     const minimumTime = extras.optimistic
       ? extras.fmpResult.optimisticEstimate.timeInMs
       : extras.fmpResult.pessimisticEstimate.timeInMs;
     return {
       timeInMs: Math.max(minimumTime, lastTaskAt),
-      nodeTiming: simulationResult.nodeTiming,
+      nodeTimings: simulationResult.nodeTimings,
     };
   }
 
   /**
    * @param {LH.Artifacts.MetricComputationData} data
-   * @param {Object} artifacts
+   * @param {LH.ComputedArtifacts} artifacts
    * @return {Promise<LH.Artifacts.LanternMetric>}
    */
   async compute_(data, artifacts) {
-    const fmpResult = await artifacts.requestLanternFirstMeaningfulPaint(data, artifacts);
+    const fmpResult = await artifacts.requestLanternFirstMeaningfulPaint(data);
     const metricResult = await this.computeMetricWithGraphs(data, artifacts, {fmpResult});
     metricResult.timing = Math.max(metricResult.timing, fmpResult.timing);
     return metricResult;
   }
 
   /**
-   * @param {Map<Node, {startTime?: number, endTime?: number}>} nodeTiming
+   * @param {LH.Gatherer.Simulation.Result['nodeTimings']} nodeTimings
    * @return {number}
    */
-  static getLastLongTaskEndTime(nodeTiming, duration = 50) {
+  static getLastLongTaskEndTime(nodeTimings, duration = 50) {
     // @ts-ignore TS can't infer how the object invariants change
-    return Array.from(nodeTiming.entries())
+    return Array.from(nodeTimings.entries())
       .filter(([node, timing]) => {
         if (node.type !== Node.TYPES.CPU) return false;
         if (!timing.endTime || !timing.startTime) return false;
@@ -110,4 +110,4 @@ class ConsistentlyInteractive extends MetricArtifact {
   }
 }
 
-module.exports = ConsistentlyInteractive;
+module.exports = Interactive;

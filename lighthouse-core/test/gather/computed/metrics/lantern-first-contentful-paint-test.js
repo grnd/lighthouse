@@ -15,13 +15,14 @@ const devtoolsLog = require('../../../fixtures/traces/progressive-app-m60.devtoo
 describe('Metrics: Lantern FCP', () => {
   it('should compute predicted value', async () => {
     const artifacts = Runner.instantiateComputedArtifacts();
-    const result = await artifacts.requestLanternFirstContentfulPaint({trace, devtoolsLog});
+    const result = await artifacts.requestLanternFirstContentfulPaint({trace, devtoolsLog,
+      settings: {}});
 
     assert.equal(Math.round(result.timing), 2038);
     assert.equal(Math.round(result.optimisticEstimate.timeInMs), 611);
     assert.equal(Math.round(result.pessimisticEstimate.timeInMs), 611);
-    assert.equal(result.optimisticEstimate.nodeTiming.size, 2);
-    assert.equal(result.pessimisticEstimate.nodeTiming.size, 2);
+    assert.equal(result.optimisticEstimate.nodeTimings.size, 2);
+    assert.equal(result.pessimisticEstimate.nodeTimings.size, 2);
     assert.ok(result.optimisticGraph, 'should have created optimistic graph');
     assert.ok(result.pessimisticGraph, 'should have created pessimistic graph');
   });

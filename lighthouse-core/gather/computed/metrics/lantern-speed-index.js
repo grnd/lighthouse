@@ -50,21 +50,21 @@ class SpeedIndex extends MetricArtifact {
     const fcpTimeInMs = extras.fcpResult.timing;
     const estimate = extras.optimistic
       ? extras.speedline.speedIndex
-      : SpeedIndex.computeLayoutBasedSpeedIndex(simulationResult.nodeTiming, fcpTimeInMs);
+      : SpeedIndex.computeLayoutBasedSpeedIndex(simulationResult.nodeTimings, fcpTimeInMs);
     return {
       timeInMs: estimate,
-      nodeTiming: simulationResult.nodeTiming,
+      nodeTimings: simulationResult.nodeTimings,
     };
   }
 
   /**
    * @param {LH.Artifacts.MetricComputationData} data
-   * @param {Object} artifacts
+   * @param {LH.ComputedArtifacts} artifacts
    * @return {Promise<LH.Artifacts.LanternMetric>}
    */
   async compute_(data, artifacts) {
     const speedline = await artifacts.requestSpeedline(data.trace);
-    const fcpResult = await artifacts.requestLanternFirstContentfulPaint(data, artifacts);
+    const fcpResult = await artifacts.requestLanternFirstContentfulPaint(data);
     const metricResult = await this.computeMetricWithGraphs(data, artifacts, {
       speedline,
       fcpResult,
@@ -84,14 +84,14 @@ class SpeedIndex extends MetricArtifact {
    * different methods. Read more in the evaluation doc.
    *
    * @see https://docs.google.com/document/d/1qJWXwxoyVLVadezIp_Tgdk867G3tDNkkVRvUJSH3K1E/edit#
-   * @param {Map<Node, LH.Gatherer.Simulation.NodeTiming>} nodeTiming
+   * @param {LH.Gatherer.Simulation.Result['nodeTimings']} nodeTimings
    * @param {number} fcpTimeInMs
    * @return {number}
    */
-  static computeLayoutBasedSpeedIndex(nodeTiming, fcpTimeInMs) {
+  static computeLayoutBasedSpeedIndex(nodeTimings, fcpTimeInMs) {
     /** @type {Array<{time: number, weight: number}>} */
     const layoutWeights = [];
-    for (const [node, timing] of nodeTiming.entries()) {
+    for (const [node, timing] of nodeTimings.entries()) {
       if (node.type !== Node.TYPES.CPU) continue;
       if (!timing.startTime || !timing.endTime) continue;
 
