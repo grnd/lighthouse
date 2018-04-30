@@ -279,6 +279,13 @@ class Simulator {
   }
 
   /**
+   * @return {LH.Gatherer.Simulation.Options}
+   */
+  getOptions() {
+    return this._options;
+  }
+
+  /**
    * Estimates the time taken to process all of the graph's nodes.
    * @param {Node} graph
    * @return {LH.Gatherer.Simulation.Result}
