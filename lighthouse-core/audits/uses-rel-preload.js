@@ -23,7 +23,7 @@ class UsesRelPreloadAudit extends Audit {
       informative: true,
       helpText: 'Consider using <link rel=preload> to prioritize fetching late-discovered ' +
         'resources sooner. [Learn more](https://developers.google.com/web/updates/2016/03/link-rel-preload).',
-      requiredArtifacts: ['devtoolsLogs', 'traces'],
+      requiredArtifacts: ['devtoolsLogs', 'traces', 'URL'],
       scoreDisplayMode: Audit.SCORING_MODES.NUMERIC,
     };
   }
@@ -125,12 +125,13 @@ class UsesRelPreloadAudit extends Audit {
   static audit(artifacts, context) {
     const trace = artifacts.traces[UsesRelPreloadAudit.DEFAULT_PASS];
     const devtoolsLog = artifacts.devtoolsLogs[UsesRelPreloadAudit.DEFAULT_PASS];
+    const URL = artifacts.URL;
     const simulatorOptions = {trace, devtoolsLog, settings: context.settings};
 
     return Promise.all([
       // TODO(phulce): eliminate dependency on CRC
-      artifacts.requestCriticalRequestChains(devtoolsLog),
-      artifacts.requestMainResource(devtoolsLog),
+      artifacts.requestCriticalRequestChains({devtoolsLog, URL}),
+      artifacts.requestMainResource({devtoolsLog, URL}),
       artifacts.requestPageDependencyGraph({trace, devtoolsLog}),
       artifacts.requestLoadSimulator(simulatorOptions),
     ]).then(([critChains, mainResource, graph, simulator]) => {
